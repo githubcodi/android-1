@@ -13,9 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,7 +70,6 @@ public class StartActivity extends AppCompatActivity {
 
     public class RestOperation extends AsyncTask<String,Void,Void> {
 
-        final HttpClient httpClient = new DefaultHttpClient();
         String content;
         String error;
         ProgressDialog progressDialog = new ProgressDialog(StartActivity.this);
