@@ -30,8 +30,25 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+
+import com.google.gson.Gson;
+
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import plus.prix.prix.model.Login;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -71,9 +88,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
+        //populateAutoComplete();
+
+        // TODO JUST FOR TEST]
+        mEmailView.setText("test@test.com");
+
 
         mPasswordView = (EditText) findViewById(R.id.password);
+
+
+        // TODO JUST FOR TEST
+        mPasswordView.setText("123456");
+
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -97,7 +123,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
     }
 
-    private void populateAutoComplete() {
+/*    private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
         }
@@ -125,21 +151,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
         }
         return false;
-    }
+    }*/
 
     /**
      * Callback received when a permissions request has been completed.
      */
+    /*
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == REQUEST_READ_CONTACTS) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
+                //populateAutoComplete();
             }
         }
     }
-
+*/
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -263,7 +290,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         List<String> emails = new ArrayList<>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
+            // TODO ERRO INESPERADO (Ctrl Z)
+            //emails.add(cursor.getStriDefaultHttpClient client = new DefaultHttpClient();ng(ProfileQuery.ADDRESS));
             cursor.moveToNext();
         }
 
@@ -301,41 +329,105 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
-        private final String mPassword;
+
+
+        private Login login;
 
         UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
+            login = new Login(email, password);
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
-//            try {
-//                // Simulate network access.
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                return false;
-//            }
+            BufferedReader br = null;
+            URL url;
+            try {
 
-            sendMessage(mLoginFormView);
-/*
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    System.out.println("Login OK");
-                    sendMessage(mLoginFormView);
-                    return pieces[1].equals(mPassword);
+                Gson gson = new Gson();
+                String json = gson.toJson(login);
 
-                } else {
-                    System.out.println("Login Erro");
+                url = new URL("http://prix.plus/api/login");
+
+
+
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+
+                connection.setReadTimeout(10000);
+                connection.setConnectTimeout(15000);
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+
+                System.out.println("JSON:"+json);
+
+
+                /*
+                OutputStream os = connection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(json.toString());
+                writer.flush();
+                */
+
+                OutputStreamWriter osw = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
+                osw.write(json.toString());
+                osw.flush();
+                //osw.close();
+
+                connection.connect();
+
+                int status = connection.getResponseCode();
+
+
+                System.out.println("code:...");
+                System.out.println(status);
+                //connection.setDoOutput(true);
+                //OutputStreamWriter outputStreamWr = new OutputStreamWriter(connection.getOutputStream());
+                //outputStreamWr.write(data);
+                //outputStreamWr.flush();
+
+                //gson.newJsonReader();
+
+                br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line+"\n");
+                }
+                br.close();
+                /*
+                return sb.toString();
+
+
+                br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuffer sb = new StringBuffer();
+                String line = null;
+
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                    sb.append(System.getProperty("line.separator"));
+                }status = c.getResponseCode()
+    */
+                System.out.println("RESPOSTA1:"+sb.substring(0, sb.length()));
+
+                System.out.println("RESPOSTA2:"+sb.toString());
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            } /* finally {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-*/
-
+            */
             // TODO: register the new account here.
 
             return true;

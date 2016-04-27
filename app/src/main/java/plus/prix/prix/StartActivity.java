@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -56,13 +57,7 @@ public class StartActivity extends AppCompatActivity {
         getData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               String restURL = "http://tiagopassos.com/BeatlesJson.php" ;
-
-                /*
-                //JSON content:
-                {"Beatles":[{"name":"John","number":"1","date_birth":"9 October 1940"},{"name":"Paul","number":"2","date_birth":"18 June 1942"},{"name":"George","number":"3","date_birth":"25 February 1943"},{"name":"Ringo","number":"4","date_birth":"7 July 1940"}]}
-                 */
-                new RestOperation().execute(restURL);
+                new RestOperation().execute();
             }
         });
 
@@ -96,13 +91,14 @@ public class StartActivity extends AppCompatActivity {
             BufferedReader br = null;
             URL url;
             try {
-                url = new URL(params[0]);
 
-                    URLConnection connection = url.openConnection();
-                    connection.setDoOutput(true);
-                OutputStreamWriter outputStreamWr = new OutputStreamWriter(connection.getOutputStream());
-                outputStreamWr.write(data);
-                outputStreamWr.flush();
+                url = new URL("http://prix.plus/api/ping/");
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                System.out.println(connection.getResponseCode());
+                //connection.setDoOutput(true);
+                //OutputStreamWriter outputStreamWr = new OutputStreamWriter(connection.getOutputStream());
+                //outputStreamWr.write(data);
+                //outputStreamWr.flush();
 
                 br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuffer sb = new StringBuffer();
@@ -121,13 +117,15 @@ public class StartActivity extends AppCompatActivity {
             } catch (IOException e) {
                 error = e.getMessage();
                 e.printStackTrace();
-            } finally {
+
+            } /* finally {
                 try {
                     br.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+            */
 
             return null;
         }
@@ -149,8 +147,10 @@ public class StartActivity extends AppCompatActivity {
 
                 try {
                     jsonResponse = new JSONObject(content);
-                    JSONArray jsonArray = jsonResponse.optJSONArray("Beatles");
+                    //JSONArray jsonArray = jsonResponse.optJSONArray("Beatles");
+                    output = jsonResponse.getString("message");
 
+                    /*
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject child = jsonArray.getJSONObject(i);
                         String name = child.getString("name");
@@ -160,6 +160,7 @@ public class StartActivity extends AppCompatActivity {
                         output = "Name =" + name + System.getProperty("line.separator") + number + System.getProperty("line.separator") + time + System.getProperty("line.separator");
 
                     }
+                    */
 
                     showParsedJSON.setText(output);
 

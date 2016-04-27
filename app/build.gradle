@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
-
+repositories{
+    mavenCentral()
+}
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
@@ -24,4 +26,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'com.android.support:design:23.2.1'
+    compile 'org.json:json:20090211'
+    compile 'com.google.code.gson:gson:2.6.2'
 }
